@@ -161,7 +161,6 @@ QASevNet/
 ## 🌟 **Remerciements**
 
 * TensorFlow & Streamlit pour leurs écosystèmes open-source
-* STMicroelectronics & ACTIA Engineering pour l’inspiration QA industrielle
 * Communauté IA tunisienne 🇹🇳 pour le partage et la passion ❤️
 
 ---
