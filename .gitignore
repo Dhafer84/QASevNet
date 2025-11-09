@@ -4,7 +4,10 @@ __pycache__/
 *.pyc
 
 # Données locales et sorties
-data/
+# ignorer tout le dossier data
+data/*
+# ...sauf le fichier de test qu'on veut versionner
+!data/test.csv
 reports/
 
 # Modèle Keras fichier (on versionne plutôt l’export SavedModel)

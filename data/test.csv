@@ -1,0 +1,15 @@
+text,label
+Erreur fatale lors du traitement de paiements sup√©rieurs √† 10000‚Ç¨.,Critique
+Crash lors du chargement des fichiers volumineux.,Critique
+La vérification 2FA n’est pas demandée sur certains parcours.,Majeur
+Erreur de traduction dans le menu param√®tres.,Mineur
+Le chargement initial prend plus de 20 secondes.,Majeur
+Le graphique des ventes ne s‚Äôactualise pas sans rechargement manuel.,Mineur
+Le verrouillage concurrent supprime des enregistrements.,Critique
+L‚Äôimage de profil ne se met pas √† jour sans actualiser la page.,Mineur
+Erreur d‚Äôaffichage sur la page r√©capitulative des commandes.,Majeur
+L‚Äôic√¥ne de notification reste affich√©e apr√®s lecture du message.,Mineur
+Les acc√®s administrateur sont attribu√©s √† des comptes non autoris√©s.,Critique
+Texte tronqu√© sur la page de profil utilisateur.,Mineur
+Les champs obligatoires ne sont pas correctement signal√©s.,Majeur
+Crash de l’écran “Historique” après import massif.,Critique
