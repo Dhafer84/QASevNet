@@ -69,14 +69,14 @@ def infer_probs(infer, text: str) -> np.ndarray:
     common_keys = ("text", "inputs", "input_1", "args_0")
 
     for tensor in (t1, t2):
-        # 1) clés standard
+        #  clés standard
         for kw in common_keys:
             try:
                 out = infer(**{kw: tensor})
                 return list(out.values())[0].numpy()[0]
             except Exception:
                 pass
-        # 2) clé exportée (dynamique)
+        #  clé exportée (dynamique)
         try:
             key = list(infer.structured_input_signature[1].keys())[0]
             out = infer(**{key: tensor})
@@ -158,10 +158,10 @@ with tab_pred:
 
     if submitted and text.strip():
         try:
-            # 1) Inférence modèle exporté (robuste)
+            # Inférence modèle exporté (robuste)
             probs = infer_probs(infer, text).astype("float32")
 
-            # 2) Lissage + post-traitement calibré
+            # Lissage + post-traitement calibré
             probs_T = softmax_with_temperature(probs, T=T)
             pp = load_postproc()
             bias = np.ones(len(LABELS), dtype=np.float32)
@@ -172,7 +172,7 @@ with tab_pred:
             pred_id = decide_with_pp(probs_adj, pp)
             pred = LABELS[pred_id]
 
-            # 3) Affichage — utiliser un DataFrame indexé (compatibilité Streamlit)
+            # Affichage — utiliser un DataFrame indexé
             st.subheader(f"Prédiction : **{pred}**")
             st.markdown("**Probabilités (après calibration)**")
             df_probs = pd.DataFrame(
@@ -212,7 +212,6 @@ with tab_pred:
 with tab_eval:
     st.markdown("Cet onglet affiche les artefacts d’évaluation.")
 
-    # 1) Si des fichiers existent (poussés via Option A), on les montre
     cm_path = "reports/confusion_matrix.png"
     pr_path = "reports/precision_recall.png"
     cr_txt  = "reports/classification_report.txt"
@@ -229,7 +228,7 @@ with tab_eval:
             st.markdown("---")
             st.code(f.read())
     else:
-        # 2) Sinon, on propose de générer à la volée
+        
         st.info("Aucun artefact trouvé dans `reports/`. Cliquez pour calculer les métriques à partir de `data/test.csv`.")
         gen = st.button("⚙️ Générer l’évaluation maintenant")
         if gen:
@@ -254,7 +253,6 @@ with tab_eval:
                 fig_pr = plot_pr_curve_micro(y, probs)
                 st.pyplot(fig_pr)
 
-                # Option : sauvegarder aussi dans /reports pour usage futur
                 os.makedirs("reports", exist_ok=True)
                 with open("reports/classification_report.txt", "w") as f:
                     f.write(rep)

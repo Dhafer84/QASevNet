@@ -96,7 +96,7 @@ def main(args):
     priors = class_counts / class_counts.sum()
     bias_init = tf.keras.initializers.Constant(np.log(priors + 1e-8))
 
-    # --- 3) Modèle : TF-IDF -> Dropout -> Dense(128) -> Dropout -> Softmax ---
+    # ---  Modèle : TF-IDF -> Dropout -> Dense(128) -> Dropout -> Softmax ---
     text_in = tf.keras.Input(shape=(1,), dtype=tf.string, name="text")
     x = text_vec(text_in)
     x = layers.Dropout(0.12)(x)
@@ -113,7 +113,7 @@ def main(args):
     )(x)
     model = models.Model(text_in, out)
 
-    # --- 4) Compilation : Focal Loss avec fort alpha sur Majeur ---
+    # --- Compilation : Focal Loss avec fort alpha sur Majeur ---
     alpha = [1.0] * len(LABELS)
     alpha[label2id["Majeur"]]   = 1.4   # au lieu de 1.8 / 2.2
     alpha[label2id["Critique"]] = 1.15  # un petit plus, sans écraser Mineur
@@ -122,7 +122,7 @@ def main(args):
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=8e-4),
                   loss=loss, metrics=["accuracy"])
 
-    # --- 5) Entraînement ---
+    # --- Entraînement ---
     class_weight = compute_class_weight(y_train)  # dataset équilibré → proche de 1
     print("Class weight used:", class_weight)
 
@@ -144,7 +144,7 @@ def main(args):
         callbacks=[es, rlrop, f1cb],
     )
 
-    # --- 6) Sauvegardes (.keras + SavedModel) ---
+    # --- Sauvegardes (.keras + SavedModel) ---
     parent_dir = os.path.dirname(args.model_dir) or "."
     ensure_dir(os.path.join(parent_dir, "dummy"))
     model.save(args.model_dir)
@@ -155,13 +155,13 @@ def main(args):
     model.export(export_dir)  # Keras 3 : export inclut TextVectorization
     print(f"Exported inference model to {export_dir}")
 
-    # --- 7) TF-IDF scikit-learn (explications UI) ---
+    # --- TF-IDF scikit-learn (explications UI) ---
     from sklearn.feature_extraction.text import TfidfVectorizer
     tfidf = TfidfVectorizer(max_features=30000, ngram_range=(1, 2))
     tfidf.fit(pd.concat([train["text"], val["text"]]).astype(str).values)
     save_pickle(tfidf, args.tfidf_path)
 
-    # --- 8) Log minimal pour tracer les essais ---
+    # ---  Log minimal pour tracer les essais ---
     os.makedirs("reports", exist_ok=True)
     log_path = "reports/train_log.csv"
     val_acc = float(model.evaluate(x_val, y_val, verbose=0)[1])

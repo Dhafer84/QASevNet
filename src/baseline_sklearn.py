@@ -21,7 +21,7 @@ def main(args):
     word_tfidf = TfidfVectorizer(max_features=50000, ngram_range=(1,2), min_df=1)
     char_tfidf = TfidfVectorizer(analyzer="char", ngram_range=(3,5), min_df=1, max_features=80000)
 
-    # Union (mots + caractères) → très efficace pour textes courts/bruités
+    # Union (mots + caractères) 
     from scipy.sparse import hstack
     Xw = word_tfidf.fit_transform(X_tr)
     Xc = char_tfidf.fit_transform(X_tr)
