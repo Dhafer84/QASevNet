@@ -87,6 +87,52 @@ def infer_probs(infer, text: str) -> np.ndarray:
     raise RuntimeError("Impossible d'appeler la signature d'inférence (forme/nom d'entrée).")
 
 infer, tfidf = load_assets()
+# ---- Helpers pour l'évaluation à la volée ----
+import io, json
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report, confusion_matrix, precision_recall_curve, average_precision_score
+
+def infer_probs_texts(infer, texts):
+    """Retourne un np.array (N, C) de probabilités pour une liste de textes."""
+    import numpy as np, tensorflow as tf
+    t = tf.constant(np.array(texts, dtype=object).reshape(-1, 1), dtype=tf.string)
+    try:
+        res = infer(text=t)                 # signature standard
+    except Exception:
+        try:
+            res = infer(args_0=t)           # signature Keras 3
+        except Exception:
+            key = list(infer.structured_input_signature[1].keys())[0]
+            res = infer(**{key: t})         # autre nom
+    return list(res.values())[0].numpy()
+
+def plot_confusion(cm):
+    fig, ax = plt.subplots(figsize=(5,4))
+    im = ax.imshow(cm, cmap="Blues")
+    ax.set_title("Matrice de confusion")
+    ax.set_xticks(range(len(LABELS))); ax.set_yticks(range(len(LABELS)))
+    ax.set_xticklabels(LABELS); ax.set_yticklabels(LABELS)
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            ax.text(j, i, cm[i, j], ha='center', va='center', color=("black" if cm[i,j] < cm.max()/2 else "white"))
+    ax.set_ylabel("Vrai"); ax.set_xlabel("Prédit")
+    fig.tight_layout()
+    return fig
+
+def plot_pr_curve_micro(y_true_ids, probs):
+    import numpy as np
+    y_true_bin = np.zeros_like(probs)
+    for i, y in enumerate(y_true_ids):
+        y_true_bin[i, y] = 1
+    precision, recall, _ = precision_recall_curve(y_true_bin.ravel(), probs.ravel())
+    ap = average_precision_score(y_true_bin, probs, average='micro')
+    fig, ax = plt.subplots(figsize=(5,4))
+    ax.plot(recall, precision, lw=2)
+    ax.set_title(f"Courbe PR (micro) – AP={ap:.3f}")
+    ax.set_xlabel("Recall"); ax.set_ylabel("Precision")
+    fig.tight_layout()
+    return fig
 
 # ------------------------ UI ------------------------
 
@@ -163,30 +209,61 @@ with tab_pred:
             st.error(f"Erreur d'inférence : {e}")
 
 with tab_eval:
-    st.markdown("Cet onglet affiche les artefacts d’évaluation générés par `src.evaluate`.")
+    st.markdown("Cet onglet affiche les artefacts d’évaluation.")
+
+    # 1) Si des fichiers existent (poussés via Option A), on les montre
     cm_path = "reports/confusion_matrix.png"
     pr_path = "reports/precision_recall.png"
     cr_txt  = "reports/classification_report.txt"
 
-    cols = st.columns(2)
-    with cols[0]:
-        if os.path.exists(cm_path):
-            # Anciennes versions de Streamlit : pas de use_container_width
-            st.image(cm_path, caption="Matrice de confusion")
-        else:
-            st.info("`reports/confusion_matrix.png` introuvable. Lance `python -m src.evaluate ...`")
-    with cols[1]:
-        if os.path.exists(pr_path):
-            st.image(pr_path, caption="Precision/Recall (micro)")
-        else:
-            st.info("`reports/precision_recall.png` introuvable.")
+    files_found = os.path.exists(cm_path) and os.path.exists(pr_path) and os.path.exists(cr_txt)
 
-    st.markdown("---")
-    if os.path.exists(cr_txt):
+    if files_found:
+        cols = st.columns(2)
+        with cols[0]:
+            st.image(cm_path, caption="Matrice de confusion")
+        with cols[1]:
+            st.image(pr_path, caption="Precision/Recall (micro)")
         with open(cr_txt, "r", encoding="utf-8", errors="ignore") as f:
+            st.markdown("---")
             st.code(f.read())
     else:
-        st.info("`reports/classification_report.txt` introuvable.")
+        # 2) Sinon, on propose de générer à la volée
+        st.info("Aucun artefact trouvé dans `reports/`. Cliquez pour calculer les métriques à partir de `data/test.csv`.")
+        gen = st.button("⚙️ Générer l’évaluation maintenant")
+        if gen:
+            try:
+                df = pd.read_csv("data/test.csv")
+                x = df["text"].astype(str).tolist()
+                y = df["label"].map(label2id).astype(int).values
+
+                probs = infer_probs_texts(infer, x)
+                y_pred = probs.argmax(axis=1)
+
+                # Rapports
+                rep = classification_report(y, y_pred, target_names=LABELS, digits=3, zero_division=0)
+                st.markdown("### Rapport de classification")
+                st.code(rep)
+
+                # Graphes inline
+                cm = confusion_matrix(y, y_pred, labels=list(range(len(LABELS))))
+                fig_cm = plot_confusion(cm)
+                st.pyplot(fig_cm)
+
+                fig_pr = plot_pr_curve_micro(y, probs)
+                st.pyplot(fig_pr)
+
+                # Option : sauvegarder aussi dans /reports pour usage futur
+                os.makedirs("reports", exist_ok=True)
+                with open("reports/classification_report.txt", "w") as f:
+                    f.write(rep)
+                fig_cm.savefig("reports/confusion_matrix.png"); plt.close(fig_cm)
+                fig_pr.savefig("reports/precision_recall.png"); plt.close(fig_pr)
+                st.success("Évaluation générée et sauvegardée dans `reports/`.")
+
+            except Exception as e:
+                st.error(f"Échec de l’évaluation : {e}")
+
 
 st.sidebar.header("À propos")
 st.sidebar.write("Modèle: TextVectorization(n-grams TF-IDF) → (Dense 128) → Softmax.")

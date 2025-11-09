@@ -30,5 +30,6 @@ keras==3.10.0
 protobuf==5.28.3
 typing-extensions==4.12.2
 h5py==3.12.1
+matplotlib==3.9.2
 
 
