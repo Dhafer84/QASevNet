@@ -12,16 +12,23 @@
 #protobuf==4.25.3
 #typing-extensions==4.10.0
 
+# --- UI ---
 streamlit==1.39.0
-rich==13.9.4
+rich==13.9.4            # évite le conflit (streamlit 1.39 requiert rich<14)
 
-numpy==2.0.2
+# --- Data/ML ---
+numpy==2.0.2            # TF 2.20 supporte numpy 2.x
 pandas==2.2.3
 scikit-learn==1.5.2
-matplotlib==3.9.2
+matplotlib==3.9.2       # utile seulement si tu affiches des figures
 
+# --- Deep Learning (CPU, Py3.13) ---
 tensorflow-cpu==2.20.0
 keras==3.6.0
 protobuf==4.25.3
 typing-extensions==4.12.2
+
+# (optionnel mais souvent utile)
+h5py==3.11.0
+
 
