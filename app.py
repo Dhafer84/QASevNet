@@ -139,7 +139,8 @@ def plot_pr_curve_micro(y_true_ids, probs):
 #st.title("QASevNet — Classification de la criticité")
 #st.caption("Démo : description → criticité (Mineur / Majeur / Critique) avec calibration post-traitement")
 
-tab_pred, tab_eval = st.tabs(["🔮 Prédiction", "📊 Évaluation"])
+#tab_pred, tab_eval = st.tabs(["🔮 Prédiction", "📊 Évaluation"])
+tab_pred, tab_eval, tab_about = st.tabs(["🔮 Prédiction", "📊 Évaluation", "📘 À propos"])
 
 with tab_pred:
     with st.form("predict_form", clear_on_submit=False):
@@ -263,6 +264,13 @@ with tab_eval:
 
             except Exception as e:
                 st.error(f"Échec de l’évaluation : {e}")
+with tab_about:
+    try:
+        with open("README.md", "r", encoding="utf-8") as f:
+            readme_text = f.read()
+        st.markdown(readme_text, unsafe_allow_html=True)
+    except FileNotFoundError:
+        st.error("README.md introuvable.")
 
 
 st.sidebar.header("À propos")
@@ -271,5 +279,14 @@ st.sidebar.write("Calibration via `models/postproc.json` (biais & seuils).")
 st.sidebar.markdown("**Utilisation**\n1) Entrer une description.\n2) Régler (optionnel) la température.\n3) Cliquer *Prédire*.\n4) Voir * Évaluation* pour les métriques.")
 st.sidebar.markdown("[🌐 Projet GitHub](https://github.com/Dhafer84/QASevNet)")
 st.sidebar.markdown("[💼 LinkedIn](https://www.linkedin.com/in/bouthelja-dhafer-116681a0/)")
+# --- Onglet "À propos du projet" ---
+with st.expander("📘 À propos du projet QASevNet"):
+    try:
+        with open("README.md", "r", encoding="utf-8") as f:
+            readme_text = f.read()
+        st.markdown(readme_text, unsafe_allow_html=True)
+    except FileNotFoundError:
+        st.warning("README.md introuvable dans le dépôt.")
+
 st.sidebar.markdown("---")
 st.sidebar.write("© 2025 Dhafer-QASevNet")
