@@ -1,0 +1,13 @@
+{
+  "f1": 0.5982683982683983,
+  "maj_bias": 1.1,
+  "crit_bias": 1.0,
+  "maj_thresh": 0.36,
+  "crit_thresh": 0.32,
+  "delta": 0.08,
+  "labels": [
+    "Mineur",
+    "Majeur",
+    "Critique"
+  ]
+}

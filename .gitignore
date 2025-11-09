@@ -1,0 +1,14 @@
+# Environnements / caches
+.venv/
+__pycache__/
+*.pyc
+
+# Données locales et sorties
+data/
+reports/
+
+# Modèle Keras fichier (on versionne plutôt l’export SavedModel)
+models/qasevnet.keras
+
+# Mac
+.DS_Store
