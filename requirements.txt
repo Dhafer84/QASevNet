@@ -1,13 +1,25 @@
-streamlit==1.31.1
-rich==13.7.1
-markdown-it-py==3.0.0
-mdurl==0.1.2
-pygments==2.17.2
+#streamlit==1.31.1
+#rich==13.7.1
+#markdown-it-py==3.0.0
+#mdurl==0.1.2
+#pygments==2.17.2
 
-tensorflow-cpu==2.17.1
-keras==3.4.1
+#tensorflow-cpu==2.17.1
+#keras==3.4.1
+#numpy==1.26.4
+#pandas==2.2.2
+#scikit-learn==1.4.2
+#protobuf==4.25.3
+#typing-extensions==4.10.0
+
+# Versions compatibles Streamlit Cloud + TensorFlow CPU
+streamlit==1.39.0
+rich==13.9.4
+
 numpy==1.26.4
-pandas==2.2.2
-scikit-learn==1.4.2
-protobuf==4.25.3
-typing-extensions==4.10.0
+pandas==2.2.3
+scikit-learn==1.5.2
+matplotlib==3.9.2
+
+# TensorFlow CPU (compatible py311, Linux x86_64 sur Streamlit Cloud)
+tensorflow-cpu==2.17.1
